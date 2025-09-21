@@ -1,0 +1,22 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "src/screens/MarketScreen.js",
+    "app/(tabs)/_layout.js",
+    "app/index.js",
+    "app/(tabs)/index.js",
+    "app/(tabs)/market.js",
+    "app/(tabs)/weather.js",
+    "app/(tabs)/pest.js"
+  ]
+}
