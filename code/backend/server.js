@@ -45,7 +45,9 @@ app.use('*', (req, res) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`"Server is running on http://0.0.0.0:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+  console.log(`Local access: http://localhost:${PORT}/api/health`);
+  console.log(`Mobile access: http://172.16.37.127:${PORT}/api/health`);
+  console.log(`Alternative IP: http://172.19.96.1:${PORT}/api/health`);
 });

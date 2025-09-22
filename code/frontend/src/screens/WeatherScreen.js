@@ -10,10 +10,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import axios from "axios";
-  // Backend API base URL
-import { Platform } from "react-native";
-import Constants from "expo-constants";
+import { weatherAPI } from "../utils/api";
 
 const WeatherScreen = () => {
   const [weather, setWeather] = useState(null);
@@ -21,27 +18,6 @@ const WeatherScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentCity, setCurrentCity] = useState("Delhi");
-
-
-
-// Change this to your PC's LAN IP when testing on a physical device via Expo Go
-const LAN_IP = "192.168.29.52"; // <- replace with your ipconfig/ifconfig IP
-
-// Choose base URL depending on environment, guarded with try/catch
-// - Android emulator: 10.0.2.2
-// - iOS simulator: localhost
-// - Physical device on same Wi‑Fi: use LAN_IP
-let API_BASE_URL;
-try {
-  API_BASE_URL = Platform.select({
-    android: __DEV__ ? "http://10.0.2.2:5000/api" : `http://${LAN_IP}:5000/api`,
-    ios: __DEV__ ? "http://localhost:5000/api" : `http://${LAN_IP}:5000/api`,
-    default: `http://${LAN_IP}:5000/api`,
-  });
-} catch (e) {
-  console.warn("Platform.select failed, falling back to LAN IP:", e);
-  API_BASE_URL = `http://${LAN_IP}:5000/api`;
-}
   const cities = ["Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata"];
 
   useEffect(() => {
@@ -53,11 +29,7 @@ try {
       setLoading(true);
 
       // Fetch weather data from our backend API
-      const response = await axios.get(
-        `${API_BASE_URL}/weather/city?city=${currentCity}`
-      );
-
-      const weatherData = response.data;
+      const weatherData = await weatherAPI.getWeatherByCity(currentCity);
       
       // Transform backend data to match frontend expectations
       const transformedWeather = {
@@ -105,7 +77,7 @@ try {
       console.error("Weather API Error:", error);
       Alert.alert(
         "Weather Service Error",
-        `Unable to fetch weather data.\nBase URL: ${API_BASE_URL}\nCity: ${currentCity}`
+        `Unable to fetch weather data for ${currentCity}.\n\nError: ${error.message}`
       );
       // Load mock data as fallback
       loadMockWeatherData();
