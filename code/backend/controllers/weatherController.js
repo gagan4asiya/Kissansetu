@@ -37,6 +37,10 @@ const getWeatherByCoordinates = async (req, res) => {
       });
     }
 
+
+    console.log("Fetching from:", `${API_BASE_URL}/weather/city?city=${currentCity}`);
+
+
     // Current weather
     const currentWeatherResponse = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`

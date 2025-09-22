@@ -11,6 +11,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import axios from "axios";
+  // Backend API base URL
+import { Platform } from "react-native";
+import Constants from "expo-constants";
 
 const WeatherScreen = () => {
   const [weather, setWeather] = useState(null);
@@ -19,8 +22,26 @@ const WeatherScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [currentCity, setCurrentCity] = useState("Delhi");
 
-  // Backend API base URL
-  const API_BASE_URL = "http://localhost:5000/api";
+
+
+// Change this to your PC's LAN IP when testing on a physical device via Expo Go
+const LAN_IP = "192.168.29.52"; // <- replace with your ipconfig/ifconfig IP
+
+// Choose base URL depending on environment, guarded with try/catch
+// - Android emulator: 10.0.2.2
+// - iOS simulator: localhost
+// - Physical device on same Wi‑Fi: use LAN_IP
+let API_BASE_URL;
+try {
+  API_BASE_URL = Platform.select({
+    android: __DEV__ ? "http://10.0.2.2:5000/api" : `http://${LAN_IP}:5000/api`,
+    ios: __DEV__ ? "http://localhost:5000/api" : `http://${LAN_IP}:5000/api`,
+    default: `http://${LAN_IP}:5000/api`,
+  });
+} catch (e) {
+  console.warn("Platform.select failed, falling back to LAN IP:", e);
+  API_BASE_URL = `http://${LAN_IP}:5000/api`;
+}
   const cities = ["Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata"];
 
   useEffect(() => {
@@ -84,7 +105,7 @@ const WeatherScreen = () => {
       console.error("Weather API Error:", error);
       Alert.alert(
         "Weather Service Error",
-        "Unable to fetch weather data. Please check your internet connection and ensure the backend server is running."
+        `Unable to fetch weather data.\nBase URL: ${API_BASE_URL}\nCity: ${currentCity}`
       );
       // Load mock data as fallback
       loadMockWeatherData();
@@ -174,7 +195,10 @@ const WeatherScreen = () => {
   };
 
   const formatTime = (timestamp) => {
-    return new Date(timestamp * 1000).toLocaleTimeString("en-US", {
+    const tsNumber = Number(timestamp);
+    const isMilliseconds = tsNumber > 1e12; // Heuristic: ms since epoch
+    const date = new Date(isMilliseconds ? tsNumber : tsNumber * 1000);
+    return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       hour12: true,
     });
