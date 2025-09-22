@@ -13,11 +13,17 @@ const getWeatherByCoordinates = async (req, res) => {
     }
 
     // Check if we have recent data in database (within 30 minutes)
-    const existingWeather = await Weather.findOne({
-      'location.lat': parseFloat(lat),
-      'location.lon': parseFloat(lon),
-      createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) }
-    });
+    // Only check database if MongoDB is connected
+    let existingWeather = null;
+    try {
+      existingWeather = await Weather.findOne({
+        'location.lat': parseFloat(lat),
+        'location.lon': parseFloat(lon),
+        createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) }
+      });
+    } catch (dbError) {
+      console.log('Database not available, skipping cache check:', dbError.message);
+    }
 
     if (existingWeather) {
       return res.json(existingWeather);
@@ -35,6 +41,8 @@ const getWeatherByCoordinates = async (req, res) => {
     const currentWeatherResponse = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
     );
+
+    console.log(currentWeatherResponse);
 
     // 5-day forecast
     const forecastResponse = await axios.get(
@@ -106,8 +114,15 @@ const getWeatherByCoordinates = async (req, res) => {
       farming_advice: farmingAdvice
     };
 
-    // Save to database
-    const savedWeather = await Weather.create(weatherData);
+    // Save to database (only if MongoDB is connected)
+    let savedWeather = weatherData;
+    try {
+      savedWeather = await Weather.create(weatherData);
+    } catch (dbError) {
+      console.log('Database not available, skipping save:', dbError.message);
+      // Add timestamp to the response for consistency
+      savedWeather.createdAt = new Date();
+    }
 
     res.json(savedWeather);
   } catch (error) {
@@ -131,10 +146,16 @@ const getWeatherByCity = async (req, res) => {
     }
 
     // Check if we have recent data in database
-    const existingWeather = await Weather.findOne({
-      'location.name': new RegExp(city, 'i'),
-      createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) }
-    });
+    // Only check database if MongoDB is connected
+    let existingWeather = null;
+    try {
+      existingWeather = await Weather.findOne({
+        'location.name': new RegExp(city, 'i'),
+        createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) }
+      });
+    } catch (dbError) {
+      console.log('Database not available, skipping cache check:', dbError.message);
+    }
 
     if (existingWeather) {
       return res.json(existingWeather);

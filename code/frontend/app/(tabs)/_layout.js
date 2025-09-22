@@ -1,5 +1,6 @@
 // app/(tabs)/_layout.js
 import { Tabs } from "expo-router";
+import { Text } from "react-native";
 
 export default function TabLayout() {
   return (
@@ -19,43 +20,42 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: () => "🏠",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🏠</Text>,
         }}
       />
       <Tabs.Screen
         name="advisory"
         options={{
           title: "Advisory",
-          tabBarIcon: () => "🌾",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🌾</Text>,
         }}
       />
       <Tabs.Screen
         name="weather"
         options={{
           title: "Weather",
-          tabBarIcon: () => "🌤️",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🌤️</Text>,
         }}
       />
       <Tabs.Screen
         name="market"
         options={{
           title: "Market",
-          tabBarIcon: () => "💰",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>💰</Text>,
         }}
       />
       <Tabs.Screen
         name="pest"
         options={{
           title: "Pest Detection",
-          tabBarIcon: () => "🐛",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🐛</Text>,
         }}
       />
-      // app/(tabs)/_layout.js
       <Tabs.Screen
         name="community"
         options={{
           title: "Community",
-          tabBarIcon: () => "🤝",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🤝</Text>,
         }}
       />
     </Tabs>
